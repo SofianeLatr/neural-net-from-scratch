@@ -45,7 +45,6 @@ void forward(Network *net, float input[3], float output[2])
 {
     float hidden[4];
 
-    // Input -> hidden
     for (int i = 0; i < 4; i++) {
 
         hidden[i] = net->hidden.b[i];
@@ -74,6 +73,11 @@ int main()
 
     float input[3] = {1.0f, 2.0f, 3.0f};
     float output[2];
+
+    forward(&net, input, output);
+
+    printf("Output 1: %f\n", output[0]);
+    printf("Output 2: %f\n", output[1]);
 
     return 0;
 }
