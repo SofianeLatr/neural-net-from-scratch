@@ -60,3 +60,8 @@ void initNetwork(Network &net, int inputWidth, int hiddenLayers, int *hiddenWidt
             net.layers[i].biases[j] = dis(gen);
     }
 }
+
+float relu(float x)
+{
+    return x > 0 ? x : 0;
+}
