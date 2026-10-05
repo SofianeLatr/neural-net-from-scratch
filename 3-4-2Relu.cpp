@@ -19,7 +19,7 @@ typedef struct {
 void initNetwork(Network *net)
 {
     for (int i = 0; i < 4; i++) {
-        net->b[i] = 0;
+        net->hidden.b[i] = 0;
 
         for (int j = 0; j < 3; j++)
             net->hidden.w[i][j] =
