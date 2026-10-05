@@ -65,3 +65,16 @@ float relu(float x)
 {
     return x > 0 ? x : 0;
 }
+
+void forward(Network &net){
+    int output = 0;
+    for(int i = 0; i < net.hiddenLayers + 1; i++){
+        for(int j = 0; j < net.layers[i].width; j++){
+            float sum = net.layers[i].biases[j];
+            for(int k = 0; k < net.layers[i].prevWidth; k++){
+                sum += net.layers[i].weights[j][k] * output;
+            }
+            output = relu(sum);
+        }
+    }
+}
