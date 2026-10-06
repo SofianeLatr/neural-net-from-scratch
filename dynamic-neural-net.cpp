@@ -19,6 +19,7 @@ typedef struct{
 
     int hiddenLayers;
     Layer *layers;
+    int maxWidth;
 } Network;
 
 void initNetwork(Network &net, int inputWidth, int hiddenLayers, int *hiddenWidths, int outputWidth)
@@ -59,22 +60,37 @@ void initNetwork(Network &net, int inputWidth, int hiddenLayers, int *hiddenWidt
         for (int j = 0; j < net.layers[i].width; j++)
             net.layers[i].biases[j] = dis(gen);
     }
+    net.maxWidth = 0;
+    for (int i = 0; i < net.hiddenLayers + 1; i++) {
+        if (net.layers[i].width > net.maxWidth) {
+            net.maxWidth = net.layers[i].width;
+        }
+    }
 }
 
-float relu(float x)
-{
+float relu(float x){
     return x > 0 ? x : 0;
 }
 
-void forward(Network &net){
-    int output = 0;
+float* forward(Network &net, float *input){
+
+    int inputWidth = net.layers[0].prevWidth;
+    int outputWidth = net.layers[net.hiddenLayers].width;
+
+    
+    float* prevOutput = new float[net.maxWidth];
+
+
     for(int i = 0; i < net.hiddenLayers + 1; i++){
         for(int j = 0; j < net.layers[i].width; j++){
             float sum = net.layers[i].biases[j];
+
             for(int k = 0; k < net.layers[i].prevWidth; k++){
-                sum += net.layers[i].weights[j][k] * output;
+                sum += net.layers[i].weights[j][k] * prevOutput[k];
             }
-            output = relu(sum);
+
+            prevOutput[j] = relu(sum);
         }
     }
+    return prevOutput;
 }
