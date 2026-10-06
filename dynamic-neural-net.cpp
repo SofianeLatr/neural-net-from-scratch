@@ -72,25 +72,33 @@ float relu(float x){
     return x > 0 ? x : 0;
 }
 
-float* forward(Network &net, float *input){
+float* forward(Network &net, float* input)
+{
+    float* output = new float[net.maxWidth];
+    float* next = new float[net.maxWidth];
 
-    int inputWidth = net.layers[0].prevWidth;
-    int outputWidth = net.layers[net.hiddenLayers].width;
+    float* prev = input;
 
-    
-    float* prevOutput = new float[net.maxWidth];
+    for (int i = 0; i < net.hiddenLayers + 1; i++) {
 
+        for (int j = 0; j < net.layers[i].width; j++) {
 
-    for(int i = 0; i < net.hiddenLayers + 1; i++){
-        for(int j = 0; j < net.layers[i].width; j++){
             float sum = net.layers[i].biases[j];
 
-            for(int k = 0; k < net.layers[i].prevWidth; k++){
-                sum += net.layers[i].weights[j][k] * prevOutput[k];
-            }
+            for (int k = 0; k < net.layers[i].prevWidth; k++)
+                sum += net.layers[i].weights[j][k] * prev[k];
 
-            prevOutput[j] = relu(sum);
+            next[j] = relu(sum);
         }
+
+        float* temp = output;
+        output = next;
+        next = temp;
+
+        prev = output;
     }
-    return prevOutput;
+
+    delete[] next;
+
+    return output;
 }
