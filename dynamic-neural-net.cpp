@@ -61,6 +61,7 @@ void initNetwork(Network &net, int inputWidth, int hiddenLayers, int *hiddenWidt
             net.layers[i].biases[j] = dis(gen);
     }
     net.maxWidth = 0;
+    
     for (int i = 0; i < net.hiddenLayers + 1; i++) {
         if (net.layers[i].width > net.maxWidth) {
             net.maxWidth = net.layers[i].width;
@@ -101,4 +102,65 @@ float* forward(Network &net, float* input)
     delete[] next;
 
     return output;
+}
+
+
+void backPropagation(Network &net, float* input, float* target, float learningRate)
+{
+    int count = net.hiddenLayers + 1;
+
+    float** activations = new float*[count + 1];
+
+    activations[0] = input;
+
+    for (int i = 0; i < count; i++) {
+        Layer &layer = net.layers[i];
+
+        activations[i + 1] = new float[layer.width];
+
+        for (int j = 0; j < layer.width; j++) {
+            float sum = layer.biases[j];
+
+            for (int k = 0; k < layer.prevWidth; k++)
+                sum += layer.weights[j][k] * activations[i][k];
+
+            activations[i + 1][j] = sum > 0 ? sum : 0;
+        }
+    }
+
+    float* error = new float[net.layers[count - 1].width];
+
+    for (int j = 0; j < net.layers[count - 1].width; j++)
+        error[j] = target[j] - activations[count][j];
+
+    for (int i = count - 1; i >= 0; i--) {
+        Layer &layer = net.layers[i];
+
+        float* previousError = nullptr;
+
+        if (i > 0) {
+            previousError = new float[layer.prevWidth];
+
+            for (int j = 0; j < layer.prevWidth; j++) {
+                previousError[j] = 0;
+
+                for (int k = 0; k < layer.width; k++)
+                    previousError[j] += layer.weights[k][j] * error[k];
+            }
+        }
+
+        for (int j = 0; j < layer.width; j++) {
+            float gradient = error[j] * (activations[i + 1][j] > 0 ? 1 : 0);
+
+            for (int k = 0; k < layer.prevWidth; k++)
+                layer.weights[j][k] += learningRate * gradient * activations[i][k];
+
+            layer.biases[j] += learningRate * gradient;
+        }
+
+        delete[] error;
+
+        error = previousError;
+    }
+
 }
