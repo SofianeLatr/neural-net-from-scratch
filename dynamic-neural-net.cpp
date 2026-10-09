@@ -161,6 +161,11 @@ void backPropagation(Network &net, float* input, float* target, float learningRa
         delete[] error;
 
         error = previousError;
+
+        for (int i = 1; i <= count; i++)
+        delete[] activations[i];
+
+    delete[] activations;
     }
 
 }
